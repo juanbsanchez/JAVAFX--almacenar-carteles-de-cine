@@ -6,6 +6,9 @@
 package cartelesdecinejavafx;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.ObjectInputStream;
 import java.nio.file.Paths;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -15,6 +18,8 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -161,12 +166,14 @@ public class DialogAltaCartel extends Stage{
         setScene(addCartelFormularioWindow);
 
     }
-    
+
      /**
      * Acciones a efectuar si se pulsa en el botón aceptar.
      */
     private void aceptar() {
+
         try {
+            File fileImagen = new File(inputRutaCartel.getText());
             String nombreCartel = inputTituloCartel.getText();
             int anyo = Integer.parseInt(inputAnyoCartel.getText());
             String rutaCartel = inputRutaCartel.getText();
@@ -174,11 +181,14 @@ public class DialogAltaCartel extends Stage{
                 mostrarErrorFormulario("El título no puede estar vacío");
             } else if (anyo<=0) {
                 mostrarErrorFormulario("El año debe ser un número");
-            } 
+            }
+            else if(!fileImagen.isFile()){
+            mostrarErrorFormulario("La ruta no es correcta");
+            }
             else if(rutaCartel.length()==0){
             mostrarErrorFormulario("La ruta no es correcta");
             }
-            
+
             else  {
                 // Creamos el cartel y asignamos los datos introducidos por el usuario
                 cartel = new Cartel() ;
@@ -193,7 +203,7 @@ public class DialogAltaCartel extends Stage{
         } catch (NumberFormatException e) {
             mostrarErrorFormulario("El año debe ser un número");
         }
-    }        
+    }    
     
     
      /**
