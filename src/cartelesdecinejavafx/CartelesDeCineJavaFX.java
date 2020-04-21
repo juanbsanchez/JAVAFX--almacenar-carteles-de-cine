@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package cartelesdecinejavafx;
 
 import java.io.File;
@@ -36,26 +32,37 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.WindowEvent;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+
+
 
 /**
  *
  * @author Juan José Burgos Sánchez
+ * 
+ * Aplicación de interfaz gráfica para archivar carteles de cine digitalmente.
  */
+
+
 public class CartelesDeCineJavaFX extends Application {
 
     // CONSTANTES
-    /** 
-     *{@value #NOMBRE_ARCHIVO_ENTRADA_BIN_DEFAULT} Constante que almacena la ruta donde se guarda la información de los carteles
+    /**
+     * {@value #NOMBRE_ARCHIVO_ENTRADA_BIN_DEFAULT} Constante que almacena la
+     * ruta donde se guarda la información de los carteles
      */
     private static final String NOMBRE_ARCHIVO_ENTRADA_BIN_DEFAULT = "carteles.dat";
 
     /**
-     * Lista que contiene la información de los carteles para cargarlos y guardarlos
+     * Lista que contiene la información de los carteles para cargarlos y
+     * guardarlos
      */
     List<Cartel> listaDeCarteles = new ArrayList();
 
     /**
-     * Lista que contiene la información de los carteles de las películas añadidas
+     * Lista que contiene la información de los carteles de las películas
+     * añadidas
      */
     ListView<String> carteles = new ListView();
 
@@ -65,7 +72,8 @@ public class CartelesDeCineJavaFX extends Application {
     boolean cambios = false;
 
     /**
-     * Actualiza el layout que muestra la lista de carteles, borra el layout y añade los datos de la lista.
+     * Actualiza el layout que muestra la lista de carteles, borra el layout y
+     * añade los datos de la lista.
      */
     private void actualizarLista() {
         // Limpiar el layout
@@ -87,9 +95,9 @@ public class CartelesDeCineJavaFX extends Application {
 
     //Creamos una etiqueta que usaremos si la imagen a mostrar no se ha encontrado o no es válida
     Label mensajeError = new Label("No se ha encontrado la imagen o la imagen no es válida");
-
+    
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage){
 
         //Medidas de la ventana de la aplicación
         final int anchoVentana = 800;
@@ -157,23 +165,33 @@ public class CartelesDeCineJavaFX extends Application {
         flow.getChildren().add(lblPeliculas);
         flow.getChildren().add(carteles);
         flow.getChildren().add(verCartel);
-        
+
         //Establecemos un padding para el contenedor de la lista de carteles
         flow.setPadding(new Insets(20));
-        
+
         //Añadimos al contenedor principal los demás contenedores
         contenedor.getChildren().add(vBox);
         contenedor.getChildren().add(flow);
         contenedor.getChildren().add(imagenCartel);
-        
+
         // Establecemos propiedades del escenario
         primaryStage.setTitle("Lista de carteles de películas de cine");
 
         // Creamos escena
         Scene scene1 = new Scene(contenedor);
         
-        // EVENTOS
+        //LISTENER
+        //Añadimos un Listener a la lista de carteles para detectar si ha habido un cambio en el item seleccionado
+        carteles.getSelectionModel().selectedItemProperty().addListener( new ChangeListener<String>(){
+            @Override
+            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                // Si ha habido un cambio, procedemos a borrar la imagen del cartel mostrado
+                imagenCartel.getChildren().clear();
+            }
+        });
 
+
+        // EVENTOS
         //Evento para el botón añadir
         addCartel.setOnAction((a) -> {
             DialogAltaCartel ventanaAlta = new DialogAltaCartel(primaryStage);
@@ -189,18 +207,22 @@ public class CartelesDeCineJavaFX extends Application {
 
         //Evento para borrar un cartel
         deleteCartel.setOnAction((a) -> {
-            Alert aviso = new Alert(AlertType.CONFIRMATION, "¿Seguro que desea borrar la línea seleccionada?", ButtonType.OK, ButtonType.CANCEL);
-            aviso.setHeaderText(null);
-            Optional<ButtonType> result = aviso.showAndWait();
-            if (result.orElse(ButtonType.CANCEL) == ButtonType.OK) {
+            if (!listaDeCarteles.isEmpty()) {
                 //Guardamos el índice en una variable
                 int index = carteles.getSelectionModel().getSelectedIndex();
-                //Si existe un índice seleccionado, borramos el elemento que está en dicho índice
+                //Comprobamos que hay un elemento seleccionado si existe un índice mayor o igual que 0
                 if (index >= 0) {
-                    carteles.getItems().remove(index);
-                    listaDeCarteles.remove(index);
-                    imagenCartel.getChildren().clear();
-                    cambios = true;
+                    //Mostramos mensajes de confirmación para eliminar el elemento seleccionado
+                    Alert aviso = new Alert(AlertType.CONFIRMATION, "¿Seguro que desea borrar la línea seleccionada?", ButtonType.OK, ButtonType.CANCEL);
+                    aviso.setHeaderText(null);
+                    Optional<ButtonType> result = aviso.showAndWait();
+                    if (result.orElse(ButtonType.CANCEL) == ButtonType.OK) {
+                        //Si existe un índice seleccionado, borramos el elemento que está en dicho índice
+                        carteles.getItems().remove(index);
+                        listaDeCarteles.remove(index);
+                        imagenCartel.getChildren().clear();
+                        cambios = true;
+                    }
                 }
             }
         });
@@ -209,7 +231,6 @@ public class CartelesDeCineJavaFX extends Application {
         verCartel.setOnAction((ActionEvent a) -> {
             int index = carteles.getSelectionModel().getSelectedIndex();
             if (index >= 0) {
-                
                 imagenCartel.getChildren().clear();
                 String rutaImagen = listaDeCarteles.get(index).getRutaCartel();
                 Image imagenCartelAMostrar = new Image(new File(rutaImagen).toURI().toString());
@@ -233,7 +254,6 @@ public class CartelesDeCineJavaFX extends Application {
             }
         });
 
-        
         //Botón para guardar
         guardar.setOnAction((final ActionEvent a) -> {
             guardarDocumento(listaDeCarteles, "carteles.dat");
@@ -245,6 +265,7 @@ public class CartelesDeCineJavaFX extends Application {
 
         //Botón cerrar
         cerrar.setOnAction((a) -> {
+            // Si ha habido cambios, mostramos alerta al usuario para informarle de si quiere salir sin guardar
             if (cambios) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.getButtonTypes().remove(ButtonType.OK);
@@ -276,19 +297,17 @@ public class CartelesDeCineJavaFX extends Application {
 
             //Creamos el flujo de datos de entrada
             ObjectInputStream recuperando_fichero = new ObjectInputStream(fnew);
-            
+
             //Leemos el objeto y lo cargamos en la lista de carteles
             listaDeCarteles = (List<Cartel>) recuperando_fichero.readObject();
-            
+
             //Actualizamos la lista
             actualizarLista();
-            
+
             //Mostramos la aplicación
             primaryStage.setScene(scene1);
             primaryStage.show();
-        } 
-        
-        // Si no existe el documento, capturamos la excepción
+        } // Si no existe el documento, capturamos la excepción
         catch (FileNotFoundException e) {
 
             // Mostramos ventana de aviso
@@ -333,7 +352,7 @@ public class CartelesDeCineJavaFX extends Application {
     }
 
     /**
-     *  Función para guardar un objeto serializable
+     * Función para guardar un objeto serializable
      *
      * @param serObj objeto serializable a guardar
      * @param path ruta donde se va a guardar el objeto
@@ -352,9 +371,11 @@ public class CartelesDeCineJavaFX extends Application {
         }
     }
 
-    /** 
-     * Función para detectar si el usuario cierra la aplicación haciendo click en la aspa de la ventana principal que aparece en la parte superior derecha
-     * y no se han guardado los cambios.
+    /**
+     * Función para detectar si el usuario cierra la aplicación haciendo click
+     * en la aspa de la ventana principal que aparece en la parte superior
+     * derecha y no se han guardado los cambios.
+     *
      * @event
      * @stage
      */
@@ -369,7 +390,7 @@ public class CartelesDeCineJavaFX extends Application {
             alert.setContentText(String.format("¿Salir sin guardar los cambios?"));
             alert.initOwner(stage.getOwner());
             Optional<ButtonType> res = alert.showAndWait();
-            
+
             if (res.isPresent()) {
                 if (res.get().equals(ButtonType.CANCEL)) {
                     event.consume();
