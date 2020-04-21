@@ -46,6 +46,7 @@ import javafx.beans.value.ObservableValue;
 
 
 public class CartelesDeCineJavaFX extends Application {
+    
 
     // CONSTANTES
     /**
@@ -86,6 +87,7 @@ public class CartelesDeCineJavaFX extends Application {
 
     //Contenedor principal
     FlowPane contenedor = new FlowPane(Orientation.HORIZONTAL);
+    
 
     //Contenedor para la lista de carteles
     FlowPane flow = new FlowPane(Orientation.HORIZONTAL);
@@ -98,6 +100,9 @@ public class CartelesDeCineJavaFX extends Application {
     
     @Override
     public void start(Stage primaryStage){
+        
+        //Establecemos para que no se pueda cambiar el tamaño de la pantalla que vamos a predefinir
+        primaryStage.setResizable(false);
 
         //Medidas de la ventana de la aplicación
         final int anchoVentana = 800;
@@ -110,10 +115,12 @@ public class CartelesDeCineJavaFX extends Application {
         //Aplicamos las medidas al layout de la aplicación
         contenedor.setPrefWidth(anchoVentana);
         contenedor.setPrefHeight(altoVentana);
+        
 
         //Creamos la barra de menú
         MenuBar menuBar = new MenuBar();
         VBox vBox = new VBox(menuBar);
+        
 
         // Crear un menú llamado Archivo
         Menu archivo = new Menu("Archivo");
@@ -237,11 +244,17 @@ public class CartelesDeCineJavaFX extends Application {
                 ImageView imageView = new ImageView(imagenCartelAMostrar);
 
                 if (imagenCartel.getChildren().isEmpty() && !imagenCartelAMostrar.errorProperty().get()) {
-                    imageView.setFitWidth(320);
-                    imageView.setFitHeight(200);
+                    
+                    //Establecemos el tamaño de la imagen para mostrar
+                    imageView.setFitWidth(400);
+                    imageView.setFitHeight(240);
+                    
+                    //Para que la imagen no se deforme
+                    imageView.setPreserveRatio(true);
+                    
+                    //Establecemos un padding superior
                     imagenCartel.setPadding(new Insets(44, 0, 0, 0));
 
-                    imagenCartel.setPrefWidth(300);
                     imagenCartel.setAlignment(Pos.TOP_CENTER);
                     imagenCartel.getChildren().add(imageView);
 
